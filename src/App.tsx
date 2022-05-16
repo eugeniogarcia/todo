@@ -1,26 +1,45 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+// Dependencies
+import { useState, useEffect, useMemo, useCallback } from 'react'
+
+// Components
+import List, { Todo } from './List'
+
+const initialTodos: Todo[] = [ //Tareas iniciales
+  { id: 1, task: 'Go shopping' },
+  { id: 2, task: 'Pay the electricity bill' }
+]
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+  const [todoList, setTodoList] = useState(initialTodos) //Lista de tareas
+  const [task, setTask] = useState('') //Tarea
 
-export default App;
+  useEffect(() => {
+    console.log('Rendering <App />')
+  })
+
+  const handleCreate = () => { //Añade una tarea a la lista de tareas
+    const newTodo = {
+      id: Date.now(),
+      task
+    }
+    // Pushing the new todo to the list
+    setTodoList([...todoList, newTodo])
+    
+    // Resetting input value
+    setTask('')
+  }
+
+  return (
+    <>
+      <input
+        placeholder='Tarea'
+        type="text"
+        value={task}
+        onChange={(e) => setTask(e.target.value)}
+      />
+      <button onClick={handleCreate}>Create</button>
+      <List todoList={todoList} />
+    </>
+  )
+}
+export default App
