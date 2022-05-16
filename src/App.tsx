@@ -1,8 +1,9 @@
 // Dependencies
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback} from 'react'
 
 // Components
 import List, { Todo } from './List'
+import Notes from './Notes'
 
 const initialTodos: Todo[] = [ //Tareas iniciales
   { id: 1, task: 'Go shopping' },
@@ -47,6 +48,7 @@ function App() {
 
   return (
     <>
+      <h2>To-Do's</h2>
       <input
         placeholder='Tarea'
         type="text"
@@ -55,8 +57,9 @@ function App() {
       />
       <button onClick={handleCreate}>Create</button>
       <button onClick={handleSearch}>Search</button>
-      <List todoList={filteredTodoList} />
+      <List todoList={filteredTodoList}  />
       <List todoList={todoList} handleDelete={handleDelete}/>
+      <Notes />
     </>
   )
 }
