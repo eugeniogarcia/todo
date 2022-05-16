@@ -1,46 +1,72 @@
-# Getting Started with Create React App
+# React
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Memoizing a component with memo
 
-## Available Scripts
+Si tenemos un componente como `App` que tiene un subcomponente como `List`, cuando se cambia el estado se rerenderiza el componente `App` y todos los subcompoentes: `List`, `Task`, ...
 
-In the project directory, you can run:
+Supongamos que cambiamos el estado `task`:
 
-### `npm start`
+```js
+const [task, setTask] = useState('') //Tarea
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Cuando se cambia este estado se rerenderiza todo `App`, incluyendo el componente `List`, __que no usa el estado *task*__. Para evitar esto podemos usar __memo__. Con memo envolvemos el componente y salvo que alguna de sus propiedades cambie, memo rerenderizara el componente tal y como estaba.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+```js
+import { FC, useEffect, memo } from 'react'
 
-### `npm test`
+...
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+export default memo(List)
+```
 
-### `npm run build`
+### More
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+"The memo High Order Component (HOC) is similar to PureComponent of a React class
+because it performs a shallow comparison of the props (meaning a superficial check), so if
+we try to render a component with the same props all the time, the component will render
+just once and will memorize. The only way to re-render the component is when a prop
+changes its value.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```js
+import { FC, useEffect, memo } from 'react'
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+...
 
-### `npm run eject`
+export default memo(Task)
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+Only when the properties of `Task` change is the component re-rendered. We do the same with `List`
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```js
+export default memo(List)
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+When we do type something in the App, the properties of `List` and `Task` do not change, so there is no re-rendering of these components - just the App component re-renders.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+At this point, you're probably thinking that the correct way is to always add memo to our components, or maybe you're thinking why React doesn't do this by default for us?. The reason is performance, which means it is not a good idea to add memo to all our components unless it is totally necessary, otherwise, the process of shallow comparisons and memorization will have inferior performance than if we don't use it.
 
-## Learn More
+## useMemo
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Si tenemos alguna funcion que solo queremos ejecutar entre re-renmders cuando cambien sus argumentos - quizás porque sea costosa de ejecutar - podemos usar _useMemo_:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```js
+  const filteredTodoList = useMemo(() => todoList.filter((todo: Todo) => {
+    console.log('Filtering...')
+    return todo.task.toLowerCase().includes(term.toLowerCase())
+  }), [term, todoList])
+```
+
+Con esto cada vez que se re-renderiza App, solamente se vuelve a calcular `filteredTodoList` si `term` o `todoList` cambian.
+
+## useCallback
+
+En `App` definimos una función para borrar items, que luego pasamos como una propiedad más al componente `List`. Cada vez que se re-renderice `App` se creara una nueva versión de esta función, y por lo tanto - incluso usando *memo* - se tendrá que re-renderizar `List`. Si queremos evitarlo podemos usar `useCallback`:
+
+```js
+const handleDelete = useCallback((taskId: number) => {
+    const newTodoList = todoList.filter((todo: Todo) => todo.id !== taskId)
+    setTodoList(newTodoList)
+}, [todoList])
+```
+

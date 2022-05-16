@@ -10,8 +10,9 @@ const initialTodos: Todo[] = [ //Tareas iniciales
 ]
 
 function App() {
-  const [todoList, setTodoList] = useState(initialTodos) //Lista de tareas
   const [task, setTask] = useState('') //Tarea
+  const [todoList, setTodoList] = useState(initialTodos) //Lista de tareas
+  const [term, setTerm] = useState('')//Busqueda
 
   useEffect(() => {
     console.log('Rendering <App />')
@@ -29,6 +30,21 @@ function App() {
     setTask('')
   }
 
+  const handleSearch = () => {
+    setTerm(task)
+  }
+
+  const handleDelete = useCallback((taskId: number) => {
+    const newTodoList = todoList.filter((todo: Todo) => todo.id !== taskId)
+    setTodoList(newTodoList)
+  }, [todoList])
+  
+  const filteredTodoList = useMemo(() => todoList.filter((todo: Todo) => {
+    console.log('Filtering...')
+    return todo.task.toLowerCase().includes(term.toLowerCase())
+  }), [term, todoList])
+
+
   return (
     <>
       <input
@@ -38,7 +54,9 @@ function App() {
         onChange={(e) => setTask(e.target.value)}
       />
       <button onClick={handleCreate}>Create</button>
-      <List todoList={todoList} />
+      <button onClick={handleSearch}>Search</button>
+      <List todoList={filteredTodoList} />
+      <List todoList={todoList} handleDelete={handleDelete}/>
     </>
   )
 }
