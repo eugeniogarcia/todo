@@ -1,5 +1,9 @@
 // Dependencies
 import { useState, useEffect, useMemo, useCallback} from 'react'
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import Grid from '@mui/material/Grid';
 
 // Components
 import List, { Todo } from './List'
@@ -47,20 +51,21 @@ function App() {
 
 
   return (
-    <>
+    <Box sx={{ flexGrow: 1 }}>
+      <Grid container spacing={2}>
+        <Grid item xs={12} sm={6} md={8}>
       <h2>To-Do's</h2>
-      <input
-        placeholder='Tarea'
-        type="text"
-        value={task}
-        onChange={(e) => setTask(e.target.value)}
-      />
-      <button onClick={handleCreate}>Create</button>
-      <button onClick={handleSearch}>Search</button>
+      <TextField label="Tarea" value={task} onChange={(e) => setTask(e.target.value)}/>
+      <Button variant="contained" onClick={handleCreate}>Create</Button>
+      <Button variant="contained" onClick={handleSearch}>Search</Button>
       <List todoList={filteredTodoList}  />
       <List todoList={todoList} handleDelete={handleDelete}/>
+      </Grid>
+        <Grid item xs={12} sm={6} md={4}>
       <Notes />
-    </>
+      </Grid>
+      </Grid>
+    </Box>
   )
 }
 export default App
